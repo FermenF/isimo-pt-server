@@ -32,7 +32,7 @@ trait AuthTrait
                 'password' => $request->password,
             ]);
 
-            return $this->sendResponse(message: "¡Registro Exitoso!");
+            return $this->sendResponse(201, message: "¡Registro Exitoso!");
         } catch (\Throwable $th) {
             return $this->sendResponse(500, message: "¡Error al registrar!", error: $th->getMessage());
         }
