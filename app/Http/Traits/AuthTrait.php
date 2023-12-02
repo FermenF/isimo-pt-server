@@ -3,17 +3,31 @@
 namespace App\Http\Traits;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 trait AuthTrait
 {
     use ResponseTrait;
 
-    public function userLogin()
+    public function userLogin($request)
     {
+        $validator = $this->validateUserLogin($request);
+
+        if ($validator->fails()) {
+            return $this->sendResponse(422, message: $validator->errors()->first());
+        };
+
         try {
+            $credentials = $request->only('email', 'password');
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                $token = $user->createToken('authToken')->accessToken;
+                return $this->sendResponse(data: ['token' => $token], message: '¡Inicio de sesión exitoso!');
+            }
+            return $this->sendResponse(401, message: 'Crendenciales Invalidas, intenta nuevamente.');
         } catch (\Throwable $th) {
-            return $th->getMessage();
+            return $this->sendResponse(500, message: "¡Error al iniciar sesión!", error: $th->getMessage());
         }
     }
 
@@ -23,7 +37,7 @@ trait AuthTrait
 
         if ($validator->fails()) {
             return $this->sendResponse(422, message: $validator->errors()->first());
-        }
+        };
 
         try {
             User::create([
@@ -40,6 +54,14 @@ trait AuthTrait
 
     public function userLogout()
     {
+    }
+
+    private function validateUserLogin($request)
+    {
+        return Validator::make($request->all(), [
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:6',
+        ]);
     }
 
     private function validateUserRegistration($request)

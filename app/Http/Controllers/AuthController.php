@@ -13,7 +13,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        
+        try {
+            return DB::transaction(function () use ($request) {
+                return $this->userLogin($request);
+            });
+        } catch (\Throwable $th) {
+           return $this->sendResponse(code:500, message:"Internal Server Error", error: $th->getMessage());
+        }
     }
 
     public function register(Request $request)
