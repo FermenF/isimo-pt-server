@@ -151,6 +151,7 @@ return [
         'email'                 => 'correo',
         'password'              => 'contraseña',
         'password_confirmation' => 'confirmar contraseña',
+        'content'               => 'contenido',
     ],
 
 ];

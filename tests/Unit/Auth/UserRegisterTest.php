@@ -25,13 +25,22 @@ class UserRegisterTest extends TestCase
 
     public function test_user_can_register_successfully(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $user = [
             'name' => 'Usuario de Prueba',
             'email' => 'prueba@example.com',
             'password' => 'contraseña123',
             'password_confirmation' => 'contraseña123',
-        ]);
+        ];
 
+        $response = $this->postJson('/api/auth/register', $user);
+
+        $user['name'] = strtolower($user['name']);
+        $user['email'] = strtolower($user['email']);
+
+        unset($user['password_confirmation']);
+        unset($user['password']);
+
+        $this->assertDatabaseHas('users', $user);
         $response->assertStatus(201);
     }
 
@@ -40,7 +49,7 @@ class UserRegisterTest extends TestCase
         $this->test_user_can_register_successfully(); 
 
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Usuario de Prueba numero 2',
+            'name' => 'Usuario de Prueba',
             'email' => 'prueba@example.com',
             'password' => 'contraseña123',
             'password_confirmation' => 'contraseña123',
@@ -52,7 +61,7 @@ class UserRegisterTest extends TestCase
     public function test_password_confirmation_must_match_password(): void
     {
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Usuario de Prueba numero 2',
+            'name' => 'Usuario de Prueba',
             'email' => 'prueba2@example.com',
             'password' => 'contraseña123',
             'password_confirmation' => 'contraseña1234',

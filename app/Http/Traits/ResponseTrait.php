@@ -4,7 +4,7 @@ namespace App\Http\Traits;
 
 trait ResponseTrait
 {
-    function sendResponse($code = 200, $data = [], $message = "", $error = "")
+    function sendResponse($code = 200, $data = [], $message = "Internal Server Error", $error = "")
     {
         $response = [
             'data' => $data,
