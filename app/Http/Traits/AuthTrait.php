@@ -2,9 +2,12 @@
 
 namespace App\Http\Traits;
 
+use App\Mail\SendEmailToRegisteredUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 trait AuthTrait
@@ -41,11 +44,13 @@ trait AuthTrait
         };
 
         try {
-            User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => $request->password,
             ]);
+
+            $this->sendEmail($request->email, $user);
 
             return $this->sendResponse(201, message: "¡Registro Exitoso!");
         } catch (\Throwable $th) {
@@ -56,7 +61,9 @@ trait AuthTrait
     public function userLogout()
     {
         try {
-            Auth::user()->tokens()->where('id', Auth::user()->currentAccessToken()->id)->delete();
+            $user = Auth::user();
+            $token_id = $user->currentAccessToken()->id;
+            $user->tokens()->where('id', $token_id)->delete();
             return $this->sendResponse(200, message: "Se ha cerrado la sesión correctamente");
         } catch (\Throwable $th) {
             return $this->sendResponse(500, message: "¡Error al cerrar sesión!", error: $th->getMessage());
@@ -70,6 +77,16 @@ trait AuthTrait
             return $this->sendResponse(data: $user, message: "Perfil de usuario");
         } catch (\Throwable $th) {
             return $this->sendResponse(500, message: "¡Error al obtener perfil de usuario!", error: $th->getMessage());
+        }
+    }
+
+    private function sendEmail($email, $user)
+    {
+        try {
+            Mail::to($email)->send(new SendEmailToRegisteredUser($user));
+        } catch (\Throwable $th) {
+            Log::error('Error al enviar el correo electrónico: ' . $th->getMessage());
+            throw $th->getMessage();
         }
     }
 

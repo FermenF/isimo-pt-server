@@ -63,4 +63,20 @@ class User extends Authenticatable
     {
         $this->attributes['email'] = strtolower($value);
     }
+
+    public function scopeByEmail($query, $email)
+    {
+        if (!empty($email)){
+            $query->where('email', 'LIKE', '%'. $email .'%');
+        }
+        return $query;
+
+    }
+
+    // USER RELATIONSHIPS
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

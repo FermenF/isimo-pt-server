@@ -13,5 +13,6 @@ Route::group(['prefix' => '/users'], function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UserController::class, 'index']);
+        Route::get('/{id}', [UserController::class, 'show']);
     });
 });
