@@ -7,6 +7,8 @@ use App\Models\PostImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 trait PostTrait
 {
@@ -121,8 +123,8 @@ trait PostTrait
                 $originalExtension = $imageFile->getClientOriginalExtension();
                 $filename = Uuid::uuid4()->toString() . '-' . Auth::id() . '-' . $index . '.' . $originalExtension;
                 $path = 'images/' . Auth::id() . '/posts/post/' . $post_id;
-                $imageFile->storeAs($path, $filename, 'public');
 
+                Storage::disk('public')->putFileAs($path, $imageFile, $filename);
                 $postImages[] = [
                     'post_id' => $post_id,
                     'url' => $filename,
@@ -135,7 +137,7 @@ trait PostTrait
             return $postImages;
 
         } catch (\Throwable $th) {
-            throw "Error al subir imagenes";
+            return "Error al subir imagenes" . $th->getMessage();
         }
     }
 }

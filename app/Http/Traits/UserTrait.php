@@ -11,7 +11,7 @@ trait UserTrait
     public function getAllUsers($request)
     {
         try {
-            $users = User::byEmail($request->email)->latest()->paginate(15)->makeVisible(['created_at']);
+            $users = User::byEmail($request->email)->latest()->paginate(15);
             return $this->sendResponse(data: $users, message: "Listado de usuarios");
         } catch (\Throwable $th) {
             return $this->sendResponse(code: 500, message: "Error al obtener listado de usuarios", error: $th->getMessage());
